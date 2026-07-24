@@ -389,6 +389,7 @@ export class GeminiWebExecutor extends BaseExecutor {
       let captured = false;
       const responsePromise = new Promise<void>((resolve) => {
         page.on("response", async (resp: any) => {
+          console.log("Gemini Response URL:", resp.url());
           if (captured || !resp.url().includes("StreamGenerate")) return;
           captured = true;
           try {

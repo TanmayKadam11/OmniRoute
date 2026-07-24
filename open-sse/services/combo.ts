@@ -1892,7 +1892,7 @@ export async function handleComboChat({
               lastError = `Upstream response failed quality validation: ${quality.reason}`;
               if (!lastStatus) lastStatus = 502;
               if (i > 0) fallbackCount++;
-              if (provider && rawModel) {
+              if (provider && rawModel && provider !== "gemini") {
                 const mlSettings = resolveModelLockoutSettings(settings);
                 if (mlSettings.enabled && mlSettings.errorCodes.includes(502)) {
                   recordModelLockoutFailure(
@@ -2354,7 +2354,13 @@ export async function handleComboChat({
             // once the model is cooling down, retrying it would waste an upstream
             // call and extend the cooldown via exponential backoff.
             let lockoutRecorded = false;
-            if (provider && rawModel && retry === 0 && !requestScopedFailure) {
+            if (
+              provider &&
+              provider !== "gemini" &&
+              rawModel &&
+              retry === 0 &&
+              !requestScopedFailure
+            ) {
               const mlSettings = resolveModelLockoutSettings(settings);
               if (mlSettings.enabled && mlSettings.errorCodes.includes(result.status)) {
                 recordModelLockoutFailure(
@@ -2402,7 +2408,7 @@ export async function handleComboChat({
           if (i > 0) fallbackCount++;
           // Wire combo failures into the resilience dashboard (model-level lockout)
           // alongside the provider-level cooldown below — they govern different scopes.
-          if (provider && rawModel && !requestScopedFailure) {
+          if (provider && provider !== "gemini" && rawModel && !requestScopedFailure) {
             const mlSettings = resolveModelLockoutSettings(settings);
             if (mlSettings.enabled && mlSettings.errorCodes.includes(result.status)) {
               recordModelLockoutFailure(

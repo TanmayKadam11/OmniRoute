@@ -507,9 +507,14 @@ export function lockModel(
   cooldownMs: number,
   metadata: Partial<ModelLockoutEntry> = {}
 ): void {
-  if (!model) return; // No model → skip model-level locking
+  if (!model) return;
+
+  // Disable model lockouts for Gemini
+  if (provider === "gemini") return;
+
   ensureCleanupTimer();
   const key = getModelLockKey(provider, connectionId, model);
+
   cleanupModelLockKey(key);
   const newUntil = Date.now() + cooldownMs;
   // Preserve the longer cooldown if an existing lock has more time remaining.
